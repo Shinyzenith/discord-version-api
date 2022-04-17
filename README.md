@@ -17,10 +17,13 @@ make
 
 Run the binary then use the `/version/:release_channel` endpoint to get the data.
 
-The API is served on port 3000 by default.
+The API is served on port 3000 by default. Use the `-p` flag to alter this behavior.
 
 ```bash
 ./discord-version-api
-curl http://localhost:3000/version/canary
-curl http://localhost:3000/buildid/stable
+curl http://localhost:3000/version/canary -H "X-API-Key: <yourapikey>"
+curl http://localhost:3000/buildid/stable -H "X-API-Key: <yourapikey>"
 ```
+
+Rename `env.sample` to `.env` and add your API key.
+The above method of authentication is really cringe but I need something useable right now so I'll switch to redis when I have time.
