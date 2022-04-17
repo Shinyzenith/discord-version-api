@@ -1,11 +1,15 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	num := flag.Int("p", 3000, "Port to run the API on.")
+	flag.Parse()
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
@@ -35,7 +39,7 @@ func main() {
 		}
 	})
 
-	err := router.Run("localhost:3000")
+	err := router.Run(fmt.Sprintf("localhost:%d", *num))
 	if err != nil {
 		fmt.Println(err)
 	}
