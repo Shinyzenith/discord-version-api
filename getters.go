@@ -13,6 +13,12 @@ type BuildInfo struct {
 	VersionHash string
 }
 
+var collector = colly.NewCollector() // Global colly collector.
+
+func init() {
+	collector.AllowURLRevisit = true
+}
+
 func get_build_info(channel string) (BuildInfo, error) {
 	release_channel, err := parse_release_channel(channel)
 	if err != nil {
@@ -64,7 +70,6 @@ func get_build_id(channel string) (string, error) {
 	}
 
 	/* Make a GET request. */
-	var collector = colly.NewCollector()
 	env_var := ""
 	collector.OnHTML("script[nonce]", func(element *colly.HTMLElement) {
 		if strings.Contains(element.Text, "SENTRY_TAGS") {
@@ -86,4 +91,22 @@ func get_build_id(channel string) (string, error) {
 	}
 
 	return "", errors.New("Couldn't find environment variables.")
+}
+
+func get_android_stable_id() (string, error) {
+	re := regexp.MustCompile(`(\d*\.\d*) - Stable`)
+	match := ""
+	collector.OnHTML("span.htlgb", func(element *colly.HTMLElement) {
+		res := re.FindAllString(element.Text, -1)
+		if len(res) == 0 {
+			return
+		}
+		match = re.ReplaceAllString(element.Text, "${1}")
+	})
+	collector.Visit("https://play.google.com/store/apps/details?id=com.discord")
+	if match == "" {
+		return "", errors.New("Couldn't find android stable channel version info")
+	} else {
+		return match, nil
+	}
 }

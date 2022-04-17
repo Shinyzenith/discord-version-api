@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -53,6 +54,15 @@ func main() {
 		}
 	})
 
+	router.GET("/android", func(c *gin.Context) {
+		android_version_number, err := get_android_stable_id()
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, err.Error())
+		} else {
+			c.IndentedJSON(http.StatusOK, android_version_number)
+		}
+	})
+
 	err := router.Run(fmt.Sprintf("localhost:%d", *num))
 	if err != nil {
 		fmt.Println(err)
@@ -62,8 +72,8 @@ func main() {
 func validate_API_key() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		api_key := c.Request.Header.Get("X-API-Key")
-		if api_key != os.Getenv("API_KEY") {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, "Invalid API_KEY") /* This is really cringe, please switch to redis soon. */
+		if strings.TrimSpace(api_key) != strings.TrimSpace(os.Getenv("API_KEY")) {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, "Invalid API_KEY") // This is really cringe, please switch to redis soon.
 		}
 	}
 }

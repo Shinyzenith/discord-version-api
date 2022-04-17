@@ -1,4 +1,4 @@
-module github.com/shinyzenith/discord-version-api
+module shinyzenith/discord-version-api
 
 go 1.18
 
